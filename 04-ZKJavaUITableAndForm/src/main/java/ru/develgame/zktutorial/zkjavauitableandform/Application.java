@@ -4,7 +4,7 @@
  *
  * Copyright 2020 Ilya Zemskov */
 
-package ru.develgame.zktutorial.zkjavaui;
+package ru.develgame.zktutorial.zkjavauitableandform;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

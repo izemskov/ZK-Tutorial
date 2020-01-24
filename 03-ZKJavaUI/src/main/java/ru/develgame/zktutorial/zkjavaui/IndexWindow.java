@@ -7,6 +7,9 @@
 package ru.develgame.zktutorial.zkjavaui;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 import org.zkoss.zk.ui.Page;
 import org.zkoss.zul.Div;
 import org.zkoss.zul.Label;
@@ -14,6 +17,9 @@ import org.zkoss.zul.Window;
 
 import java.util.Random;
 
+@Component
+@Lazy
+@Scope("prototype")
 public class IndexWindow {
     private int randomInt = new Random().nextInt(100);
 
