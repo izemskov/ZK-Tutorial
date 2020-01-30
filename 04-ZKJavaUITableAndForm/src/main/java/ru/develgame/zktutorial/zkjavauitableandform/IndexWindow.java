@@ -7,39 +7,31 @@
 package ru.develgame.zktutorial.zkjavauitableandform;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 import org.zkoss.xel.VariableResolver;
 import org.zkoss.zk.ui.Page;
 import org.zkoss.zk.ui.util.Composer;
 import org.zkoss.zk.ui.util.Template;
 import org.zkoss.zul.*;
-import org.zkoss.zul.impl.GridDataLoader;
 
 import java.util.HashMap;
 import java.util.Map;
 
-@Component
-@Lazy
-@Scope("prototype")
-public class IndexWindow {
+public abstract class IndexWindow extends Window {
     @Autowired
-    private MailDataModel mailDataModel;
+    private ClientDataModel clientDataModel;
 
-    public void init(Page page) {
-        Window window = new Window();
-        window.setTitle("My window");
-        window.setBorder("normal");
+    private SimpleListModel<Client> clientSimpleListModel;
+    private Grid grid;
 
-        //GroupsModel<Mail, Object, Object> groupsModel =
-//                new SimpleGroupsModel<>(mailDataModel.getData(), mailDataModel.getHeaders());
+    public void prepare(Page page) {
+        this.setTitle("Clients");
+        this.setBorder("normal");
 
-        SimpleListModel<Mail> mailSimpleListModel = new SimpleListModel<Mail>(mailDataModel.getData().get(0));
+        clientSimpleListModel = new SimpleListModel<>(clientDataModel.getData());
 
-        Grid grid = new Grid();
-        grid.setModel(mailSimpleListModel);
-        grid.setParent(window);
+        grid = new Grid();
+        grid.setModel(clientSimpleListModel);
+        grid.setParent(this);
         grid.setTemplate("model", new Template() {
             @Override
             public org.zkoss.zk.ui.Component[] create(org.zkoss.zk.ui.Component component,
@@ -53,21 +45,36 @@ public class IndexWindow {
 
                 components[0] = row;
 
-                Mail each = (Mail) variableResolver.resolveVariable("each");
+                Client each = (Client) variableResolver.resolveVariable("each");
 
                 Label label = new Label();
-                label.setValue(Long.toString(each.getId()));
+                label.setValue(each.getName());
                 Label label1 = new Label();
-                label1.setValue(each.getSubject());
+                label1.setValue(each.getGroup());
                 Label label2 = new Label();
-                label2.setValue(each.getReceived());
+                label2.setValue(Integer.toString(each.getCpuUsage()));
                 Label label3 = new Label();
-                label3.setValue(Integer.toString(each.getSize()));
+                label3.setValue(Long.toString(each.getDiskFree()));
+                Label label4 = new Label();
+                label4.setValue(Long.toString(each.getDiskUsage()));
+                Label label5 = new Label();
+                label5.setValue(Long.toString(each.getMemFree()));
+                Label label6 = new Label();
+                label6.setValue(Long.toString(each.getMemUsage()));
+                Label label7 = new Label();
+                label7.setValue(Long.toString(each.getNetInSpeed()));
+                Label label8 = new Label();
+                label8.setValue(Long.toString(each.getNetOutSpeed()));
 
                 label.setParent(row);
                 label1.setParent(row);
                 label2.setParent(row);
                 label3.setParent(row);
+                label4.setParent(row);
+                label5.setParent(row);
+                label6.setParent(row);
+                label7.setParent(row);
+                label8.setParent(row);
 
                 return components;
             }
@@ -83,22 +90,74 @@ public class IndexWindow {
         columns.setParent(grid);
 
         Column column = new Column();
-        column.setLabel("From");
+        column.setLabel("Client ID");
         column.setParent(columns);
 
         column = new Column();
-        column.setLabel("Subject");
+        column.setLabel("Group");
         column.setParent(columns);
+        column.setWidth("200px");
 
         column = new Column();
-        column.setLabel("Received");
+        column.setLabel("CPUUsage");
         column.setParent(columns);
+        column.setWidth("150px");
 
         column = new Column();
-        column.setLabel("Size");
+        column.setLabel("DiskFree");
         column.setParent(columns);
+        column.setWidth("150px");
 
-        window.setPage(page);
+        column = new Column();
+        column.setLabel("DiskUsage");
+        column.setParent(columns);
+        column.setWidth("150px");
+
+        column = new Column();
+        column.setLabel("MemFree");
+        column.setParent(columns);
+        column.setWidth("150px");
+
+        column = new Column();
+        column.setLabel("MemUsage");
+        column.setParent(columns);
+        column.setWidth("150px");
+
+        column = new Column();
+        column.setLabel("NetInSpeed");
+        column.setParent(columns);
+        column.setWidth("150px");
+
+        column = new Column();
+        column.setLabel("NetOutSpeed");
+        column.setParent(columns);
+        column.setWidth("150px");
+
+        Div div = new Div();
+        div.setStyle("margin-top: 10px;");
+        div.setParent(this);
+
+        Button buttonAdd = new Button();
+        buttonAdd.setLabel("Add");
+        buttonAdd.setAutodisable("self");
+
+        IndexWindow parent = this;
+        buttonAdd.addEventListener("onClick", event -> {
+            AddEditForm addEditForm = getAddEditForm();
+            addEditForm.setPage(page);
+            addEditForm.setParent(parent);
+            addEditForm.doModal();
+        });
+        buttonAdd.setParent(div);
+
+        this.setPage(page);
     }
+
+    public void updateDataModel() {
+        clientSimpleListModel = new SimpleListModel<>(clientDataModel.getData());
+        grid.setModel(clientSimpleListModel);
+    }
+
+    protected abstract AddEditForm getAddEditForm();
 }
 
