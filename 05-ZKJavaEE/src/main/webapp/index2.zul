@@ -1,0 +1,6 @@
+<zk>
+    <window apply="ru.develgame.zktutorial.zkjavaee.MyComposer">
+        Some test value: <label id="testLabel" />
+        <button id="someButton" label="someButton" />
+    </window>
+</zk>
