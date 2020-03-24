@@ -42,19 +42,24 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         // ZK already sends a AJAX request with a built-in CSRF token,
         // please refer to https://www.zkoss.org/wiki/ZK%20Developer's%20Reference/Security%20Tips/Cross-site%20Request%20Forgery
         http.csrf().disable();
+
         http.authorizeRequests()
-                .antMatchers(ZUL_FILES).denyAll() // block direct access to zul files
-                .antMatchers(HttpMethod.GET, ZK_RESOURCES).permitAll() // allow zk resources
-                .regexMatchers(HttpMethod.GET, REMOVE_DESKTOP_REGEX).permitAll() // allow desktop cleanup
-                .requestMatchers(req -> "rmDesktop".equals(req.getParameter("cmd_0"))).permitAll() // allow desktop cleanup from ZATS
-                .mvcMatchers("/","/login","/logout").permitAll()
-                .mvcMatchers("/secure").hasRole("ADMIN")
-                .anyRequest().authenticated()
-                .and()
-                .formLogin()
-                .loginPage("/login").defaultSuccessUrl("/hello")
-                .and()
-                .logout().logoutUrl("/logout").logoutSuccessUrl("/");
+                // block direct access to zul files
+                .antMatchers(ZUL_FILES).denyAll()
+                // allow zk resources
+                .antMatchers(HttpMethod.GET, ZK_RESOURCES).permitAll()
+                // allow desktop cleanup
+                .regexMatchers(HttpMethod.GET, REMOVE_DESKTOP_REGEX).permitAll()
+                // allow desktop cleanup from ZATS
+                .requestMatchers(req -> "rmDesktop".equals(req.getParameter("cmd_0"))).permitAll()
+                // accept any requests to login and logout pages
+                .mvcMatchers("/login","/logout").permitAll()
+                // any requests to other pages have to have authorization
+                .anyRequest().hasAnyAuthority("ADMIN")
+                // login page
+                .and().formLogin().loginPage("/login").defaultSuccessUrl("/hello")
+                // logout page
+                .and().logout().logoutUrl("/logout").logoutSuccessUrl("/");
     }
 
     @Bean
